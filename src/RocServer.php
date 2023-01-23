@@ -4,6 +4,8 @@
  * @time 2023/1/23
  */
 
+namespace roc;
+
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -15,10 +17,16 @@ class RocServer
     private int $port;
     private array $routes = [];
 
-    public function __construct(string $host, int $port)
+    /**
+     * @var array<MiddlewareInterface>
+     */
+    private array $middlewares = [];
+
+    public function __construct(string $host, int $port, $middlewares = [])
     {
         $this->host = $host;
         $this->port = $port;
+        $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
     }
 
@@ -29,7 +37,11 @@ class RocServer
             $context = new Context();
             $context->setRequest($request);
             $context->setResponse($response);
-            $handler($context);
+            $root = $handler;
+            foreach ($this->middlewares as $middleware) {
+                $root = $middleware->handle($handler);
+            }
+            $root($context);
         });
         $this->server->start();
 
