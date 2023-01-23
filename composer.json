@@ -1,0 +1,28 @@
+{
+  "name": "xiaoriri/roc",
+  "description": "Swoole web framework",
+  "keywords": [
+    "framework",
+    "swoole",
+    "roc"
+  ],
+  "authors": [
+    {
+      "name": "xiaoriri",
+      "email": "caoxuri2019@gmail.com"
+    }
+  ],
+  "php": ">=7.4.0",
+  "require-dev": {
+    "swoole/ide-helper": "@dev",
+    "ext-json": "*"
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "autoload": {
+    "psr-4": {
+      "roc\\": "src/"
+    }
+  }
+}
