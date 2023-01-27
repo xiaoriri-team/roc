@@ -13,10 +13,6 @@
     }
   ],
   "php": ">=7.4.0",
-  "require-dev": {
-    "swoole/ide-helper": "@dev",
-    "ext-json": "*"
-  },
   "config": {
     "preferred-install": "dist"
   },
@@ -24,5 +20,12 @@
     "psr-4": {
       "roc\\": "src/"
     }
+  },
+  "require": {
+    "hyperf/di": "^2.2",
+    "hyperf/contract": "^2.2",
+    "hyperf/utils": "^2.2",
+    "swoole/ide-helper": "@dev",
+    "ext-json": "*"
   }
 }
