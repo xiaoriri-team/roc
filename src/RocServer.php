@@ -10,12 +10,13 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 
-class RocServer implements IRoutes
+class RocServer
 {
     private Server $server;
     private string $host;
     private int $port;
     private array $routes = [];
+    private IRoutes $router;
 
     /**
      * @var array<MiddlewareInterface>
@@ -28,6 +29,7 @@ class RocServer implements IRoutes
         $this->port = $port;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
+        $this->router = Container::get(IRoutes::class);
     }
 
     public function start(): void
@@ -62,45 +64,5 @@ class RocServer implements IRoutes
     {
         $key = strtolower($method) . '#' . $path;
         $this->routes[$key] = $callback;
-    }
-
-    public function post(string $path, $callback): void
-    {
-        $this->setRoute('POST', $path, $callback);
-    }
-
-    public function put(string $path, $callback): void
-    {
-        $this->setRoute('PUT', $path, $callback);
-    }
-
-    public function patch(string $path, $callback): void
-    {
-        $this->setRoute('PATCH', $path, $callback);
-    }
-
-    public function delete(string $path, $callback): void
-    {
-        $this->setRoute('DELETE', $path, $callback);
-    }
-
-    public function head(string $path, $callback): void
-    {
-        $this->setRoute('HEAD', $path, $callback);
-    }
-
-    public function addRoute(string $method, string $path, $callback): void
-    {
-        $this->setRoute($method, $path, $callback);
-    }
-
-    public function addGroup(string $prefix, callable $callback): void
-    {
-        // TODO: Implement addGroup() method.
-    }
-
-    public function get(string $path, $callback): void
-    {
-        $this->setRoute('GET', $path, $callback);
     }
 }
