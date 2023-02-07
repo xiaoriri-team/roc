@@ -9,6 +9,6 @@ class Test {
      * @return array
      */
     public function test() {
-        return ['code' => 200, 'msg' => '小日日'];
+        return ['code' => 200, 'msg' => '小日日1'];
     }
 }
