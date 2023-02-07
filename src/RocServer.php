@@ -27,12 +27,17 @@ class RocServer {
      */
     private array $middlewares = [];
 
-    public function __construct(string $host, int $port, $middlewares = []) {
+    /**
+     * @param string $host
+     * @param int $port
+     * @param array $middlewares
+     */
+    public function __construct(string $host, int $port,array $middlewares = []) {
         $this->host = $host;
         $this->port = $port;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
-        $this->router = Container::get(IRoutes::class);
+        $this->router = Container::getInstance(IRoutes::class);
     }
 
     public function start(): void {
@@ -62,7 +67,6 @@ class RocServer {
         $key = strtolower($method) . '#' . $path;
         if (isset($this->routes[$key])) {
             [$class, $action] = $this->routes[$key];
-            Container::set($class, $class);
             $clazz = new ReflectionClass($class);
             if ($clazz->hasMethod($action)) {
                 $tmp = $clazz->getMethod($action);

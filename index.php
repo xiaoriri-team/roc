@@ -4,6 +4,7 @@
  * @time 2023/1/4
  */
 
+use roc\Application;
 use roc\Context;
 use roc\CorsMiddleware;
 use roc\MetricMiddleware;
@@ -11,6 +12,7 @@ use roc\RocServer;
 use roc\Test;
 
 require_once __DIR__ . '/vendor/autoload.php';
+
 //
 //$routes = new \roc\TrieRoutes();
 //$routes->addRoute('GET', '/hello/:id/:name', function (Context $context) {
@@ -27,8 +29,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 //var_dump($result);
 //die;
 //exit;
-
-
+Application::init();
 $server = new RocServer('0.0.0.0', 9501, [
     new MetricMiddleware(),
     new CorsMiddleware(),
