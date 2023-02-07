@@ -6,10 +6,10 @@
 
 use roc\Application;
 use roc\Context;
-use roc\CorsMiddleware;
-use roc\MetricMiddleware;
+use roc\Middleware\CorsMiddleware;
+use roc\Middleware\MetricMiddleware;
 use roc\RocServer;
-use roc\Test;
+use roc\Router\Router;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -30,6 +30,10 @@ require_once __DIR__ . '/vendor/autoload.php';
 //die;
 //exit;
 Application::init();
+Router::get('/hello', function (Context $context) {
+    $context->writeJson(['code' => 200, 'msg' => '小日日12312']);
+});
+Router::get('/test',[\roc\Test::class,'test']);
 $server = new RocServer('0.0.0.0', 9501, [
     new MetricMiddleware(),
     new CorsMiddleware(),
@@ -37,7 +41,7 @@ $server = new RocServer('0.0.0.0', 9501, [
 //$server->setRoute('get', '/hello', function (Context $context) {
 //    $context->writeJson(['code' => 200, 'msg' => '小日日']);
 //});
-$server->setRoute('get', '/hello', [Test::class, 'test']);
+//$server->setRoute('get', '/hello', [Test::class, 'test']);
 $server->start();
 
 //$definitionSource = new DefinitionSource([IRoutes::class => Routes::class]);

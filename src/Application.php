@@ -6,6 +6,9 @@
 
 namespace roc;
 
+use roc\Router\IRoutes;
+use roc\Router\TrieRoutes;
+
 class Application
 {
     /**

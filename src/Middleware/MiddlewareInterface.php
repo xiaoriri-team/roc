@@ -4,7 +4,7 @@
  * @time 2023/1/23
  */
 
-namespace roc;
+namespace roc\Middleware;
 
 interface MiddlewareInterface
 {

@@ -1,9 +1,8 @@
 <?php
 
-namespace roc;
+namespace roc\Middleware;
 
 use roc\Context;
-use roc\MiddlewareInterface;
 
 /**
  * @author 小日日

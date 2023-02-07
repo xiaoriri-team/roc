@@ -4,7 +4,7 @@
  * @time 2023/1/24
  */
 
-namespace roc;
+namespace roc\Router;
 
 
 /**
@@ -38,7 +38,7 @@ class TrieRoutes implements IRoutes
         $this->handlers[$key] = $callback;
     }
 
-    public function getRoute(string $method, string $path)
+    public function getData(string $method, string $path): array
     {
         $searchParts = $this->parsePattern($path);
         $params = [];
@@ -58,9 +58,9 @@ class TrieRoutes implements IRoutes
                     break;
                 }
             }
-            return [$n, $params];
+            return [$n, $params, $this->handlers[$method . "-" . $n->pattern]];
         }
-        return [null, null];
+        return [null, null, null];
     }
 
     /**
