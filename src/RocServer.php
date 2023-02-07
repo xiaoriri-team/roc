@@ -6,12 +6,16 @@
 
 namespace roc;
 
+use Closure;
+use Exception;
+use http\Exception\BadMethodCallException;
+use ReflectionClass;
+use ReflectionException;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 
-class RocServer
-{
+class RocServer {
     private Server $server;
     private string $host;
     private int $port;
@@ -23,8 +27,7 @@ class RocServer
      */
     private array $middlewares = [];
 
-    public function __construct(string $host, int $port, $middlewares = [])
-    {
+    public function __construct(string $host, int $port, $middlewares = []) {
         $this->host = $host;
         $this->port = $port;
         $this->middlewares = $middlewares;
@@ -32,8 +35,7 @@ class RocServer
         $this->router = Container::get(IRoutes::class);
     }
 
-    public function start(): void
-    {
+    public function start(): void {
         $this->server->on('request', function (Request $request, Response $response) {
             $handler = $this->findMatch($request->getMethod(), $request->server['request_uri']);
             $context = new Context();
@@ -49,19 +51,38 @@ class RocServer
 
     }
 
-    private function findMatch($method, $path): callable
-    {
+    /**
+     * @param $method
+     * @param $path
+     * @return Closure
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    private function findMatch($method, $path): Closure {
         $key = strtolower($method) . '#' . $path;
         if (isset($this->routes[$key])) {
-            return $this->routes[$key];
+            [$class, $action] = $this->routes[$key];
+            Container::set($class, $class);
+            $clazz = new ReflectionClass($class);
+            if ($clazz->hasMethod($action)) {
+                $tmp = $clazz->getMethod($action);
+                if ($tmp->ispublic()) {
+                    return function (Context $context) use ($tmp, $clazz) {
+                        $context->writeJson($tmp->invoke($clazz->newInstance()));
+                    };
+                } else {
+                    throw new BadMethodCallException("$clazz " .$action);
+                }
+            } else {
+                throw new Exception("$clazz " .$action);
+            }
         }
         return function (Context $context) {
             $context->write(404, 'Not Found');
         };
     }
 
-    public function setRoute(string $method, string $path, callable $callback): void
-    {
+    public function setRoute(string $method, string $path, array $callback): void {
         $key = strtolower($method) . '#' . $path;
         $this->routes[$key] = $callback;
     }
