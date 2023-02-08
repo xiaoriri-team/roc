@@ -6,11 +6,17 @@
 
 namespace roc;
 
+use roc\Router\IRoutes;
+use roc\Router\TrieRoutes;
+
 class Application
 {
+    /**
+     * @return void
+     */
     public static function init()
     {
-
+        Container::bind(IRoutes::class,TrieRoutes::class);
     }
 
 }

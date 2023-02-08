@@ -4,7 +4,7 @@
  * @time 2023/1/24
  */
 
-namespace roc;
+namespace roc\Router;
 
 interface IRoutes
 {
@@ -23,4 +23,6 @@ interface IRoutes
     public function addRoute(string $method, string $path, $callback): void;
 
     public function addGroup(string $prefix, callable $callback): void;
+
+    public function getData(string $method, string $path) :array;
 }

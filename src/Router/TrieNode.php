@@ -4,7 +4,7 @@
  * @time 2023/1/24
  */
 
-namespace roc;
+namespace roc\Router;
 
 class TrieNode
 {

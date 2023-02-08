@@ -22,10 +22,7 @@
     }
   },
   "require": {
-    "hyperf/di": "^2.2",
-    "hyperf/contract": "^2.2",
-    "hyperf/utils": "^2.2",
-    "swoole/ide-helper": "@dev",
+    "swoole/ide-helper": "4.8.12",
     "ext-json": "*"
   }
 }

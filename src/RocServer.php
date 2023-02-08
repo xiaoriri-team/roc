@@ -6,16 +6,14 @@
 
 namespace roc;
 
-use Closure;
-use Exception;
-use http\Exception\BadMethodCallException;
-use ReflectionClass;
-use ReflectionException;
+use roc\Middleware\MiddlewareInterface;
+use roc\Router\IRoutes;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
 
-class RocServer {
+class RocServer
+{
     private Server $server;
     private string $host;
     private int $port;
@@ -25,19 +23,44 @@ class RocServer {
     /**
      * @var array<MiddlewareInterface>
      */
-    private array $middlewares = [];
+    private array $middlewares;
 
-    public function __construct(string $host, int $port, $middlewares = []) {
+    /**
+     * @param string $host
+     * @param int $port
+     * @param array $middlewares
+     */
+    public function __construct(string $host, int $port, array $middlewares = [])
+    {
         $this->host = $host;
         $this->port = $port;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
-        $this->router = Container::get(IRoutes::class);
+        $this->router = Container::getInstance(IRoutes::class);
     }
 
-    public function start(): void {
+    public function start(): void
+    {
         $this->server->on('request', function (Request $request, Response $response) {
-            $handler = $this->findMatch($request->getMethod(), $request->server['request_uri']);
+            //todo 处理回调参数问题
+            //todo 路由中间件实现
+            [$routeItem, $args, $handler] = $this->router->getData(
+                $request->getMethod(),
+                $request->server['request_uri']
+            );
+            //没有找到路由
+            if ($routeItem === null) {
+                $handler = function (Context $context) {
+                    $context->write(404, 'Not Found');
+                };
+            }
+            //处理控制器方法调用
+            if (is_array($handler)) {
+                [$class, $action] = $handler;
+                $handler = function (Context $context) use ($class, $action) {
+                    $context->writeJson(Container::run($class, $action));
+                };
+            }
             $context = new Context();
             $context->setRequest($request);
             $context->setResponse($response);
@@ -48,42 +71,6 @@ class RocServer {
             $root($context);
         });
         $this->server->start();
-
     }
 
-    /**
-     * @param $method
-     * @param $path
-     * @return Closure
-     * @throws ReflectionException
-     * @throws Exception
-     */
-    private function findMatch($method, $path): Closure {
-        $key = strtolower($method) . '#' . $path;
-        if (isset($this->routes[$key])) {
-            [$class, $action] = $this->routes[$key];
-            Container::set($class, $class);
-            $clazz = new ReflectionClass($class);
-            if ($clazz->hasMethod($action)) {
-                $tmp = $clazz->getMethod($action);
-                if ($tmp->ispublic()) {
-                    return function (Context $context) use ($tmp, $clazz) {
-                        $context->writeJson($tmp->invoke($clazz->newInstance()));
-                    };
-                } else {
-                    throw new BadMethodCallException("$clazz " .$action);
-                }
-            } else {
-                throw new Exception("$clazz " .$action);
-            }
-        }
-        return function (Context $context) {
-            $context->write(404, 'Not Found');
-        };
-    }
-
-    public function setRoute(string $method, string $path, array $callback): void {
-        $key = strtolower($method) . '#' . $path;
-        $this->routes[$key] = $callback;
-    }
 }
