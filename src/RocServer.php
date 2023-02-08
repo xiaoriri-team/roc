@@ -17,7 +17,6 @@ class RocServer
     private Server $server;
     private string $host;
     private int $port;
-    private array $routes = [];
     private IRoutes $router;
 
     /**

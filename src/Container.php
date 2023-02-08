@@ -82,7 +82,9 @@ class Container
         $di_params = array_merge($di_params, $params);
 
         // 创建实例
-        return $reflector->newInstanceArgs($di_params);
+        $instance =  $reflector->newInstanceArgs($di_params);
+        self::$_singleton[$class_name] = $instance;
+        return $instance;
     }
 
 

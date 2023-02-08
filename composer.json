@@ -23,6 +23,7 @@
   },
   "require": {
     "swoole/ide-helper": "4.8.12",
-    "ext-json": "*"
+    "ext-json": "*",
+    "symfony/console": "^5.4"
   }
 }

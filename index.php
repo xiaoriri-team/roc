@@ -11,38 +11,37 @@ use roc\Middleware\MetricMiddleware;
 use roc\RocServer;
 use roc\Router\Router;
 
-require_once __DIR__ . '/vendor/autoload.php';
 
-//
-//$routes = new \roc\TrieRoutes();
-//$routes->addRoute('GET', '/hello/:id/:name', function (Context $context) {
-//    $context->writeJson(['code' => 200, 'msg' => '小日日']);
+ini_set('display_errors', 'on');
+ini_set('display_startup_errors', 'on');
+
+error_reporting(E_ALL);
+date_default_timezone_set('Asia/Shanghai');
+
+$basePath = getcwd();
+$dir = dirname(__DIR__, 3);
+if (file_exists($dir . '/vendor/autoload.php')) {
+    $basePath = $dir;
+}
+!defined('BASE_PATH') && define('BASE_PATH', $basePath);
+
+
+require_once __DIR__ . '/vendor/autoload.php';
+$app = \roc\Container::getInstance(Application::class);
+$app->run();
+//Router::get('/hello', function (Context $context) {
+//    $context->writeJson(['code' => 200, 'msg' => '小日日12312']);
 //});
-//$routes->addRoute('GET', '/word/ab', function (Context $context) {
-//    $context->writeJson(['code' => 200, 'msg' => '小日日']);
-//});
-//$routes->addRoute('GET', '/word/abc', function (Context $context) {
-//    $context->writeJson(['code' => 200, 'msg' => '小日日']);
-//});
-//
-//$result = $routes->getRoute('GET', '/hello/abc/xiaoriri');
-//var_dump($result);
-//die;
-//exit;
-Application::init();
-Router::get('/hello', function (Context $context) {
-    $context->writeJson(['code' => 200, 'msg' => '小日日12312']);
-});
-Router::get('/test',[\roc\Test::class,'test']);
-$server = new RocServer('0.0.0.0', 9501, [
-    new MetricMiddleware(),
-    new CorsMiddleware(),
-]);
-//$server->setRoute('get', '/hello', function (Context $context) {
-//    $context->writeJson(['code' => 200, 'msg' => '小日日']);
-//});
-//$server->setRoute('get', '/hello', [Test::class, 'test']);
-$server->start();
+//Router::get('/test', [\roc\Test::class, 'test']);
+//$server = new RocServer('0.0.0.0', 9501, [
+//    new CorsMiddleware(),
+//    new MetricMiddleware(),
+//]);
+////$server->setRoute('get', '/hello', function (Context $context) {
+////    $context->writeJson(['code' => 200, 'msg' => '小日日']);
+////});
+////$server->setRoute('get', '/hello', [Test::class, 'test']);
+//$server->start();
 
 //$definitionSource = new DefinitionSource([IRoutes::class => Routes::class]);
 //$container = new Container($definitionSource);
