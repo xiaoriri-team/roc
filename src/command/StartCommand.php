@@ -23,7 +23,7 @@ class StartCommand extends Command
         /**
          * @var Application $app
          */
-        $app = Container::getInstance(Application::class);
+        $app = Container::pull(Application::class);
         $server = $app->getServer();
         $server->start();
     }

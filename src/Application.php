@@ -6,6 +6,7 @@
 
 namespace roc;
 
+use Exception;
 use roc\command\StartCommand;
 use roc\Router\IRoutes;
 use roc\Router\TrieRoutes;
@@ -21,11 +22,11 @@ class Application
         ]
     ];
 
-    public  $server;
+    public $server;
 
     /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     public function run()
     {
@@ -37,7 +38,7 @@ class Application
 
     private function initConfig()
     {
-        $path = BASE_PATH . DIRECTORY_SEPARATOR . 'config'. DIRECTORY_SEPARATOR;
+        $path = BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
         if (is_dir($path)) {
             $files = scandir($path);
             $files = array_filter($files, function ($file) {
@@ -45,9 +46,9 @@ class Application
             });
 
             foreach ($files as $filename) {
-                if (file_exists($path .$filename)) {
+                if (file_exists($path . $filename)) {
                     $key = substr($filename, 0, strrpos($filename, "."));
-                    $result = require_once $path .$filename;
+                    $result = require_once $path . $filename;
                     if ($result) {
                         $this->configs[$key] = $result;
                     }
@@ -58,12 +59,12 @@ class Application
 
     private function initContainer()
     {
-        Container::bind(IRoutes::class, TrieRoutes::class);
+        Container::getInstance()->bind(IRoutes::class, TrieRoutes::class);
     }
 
     /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function initCommand()
     {

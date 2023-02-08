@@ -35,7 +35,7 @@ class RocServer
         $this->port = $port;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
-        $this->router = Container::getInstance(IRoutes::class);
+        $this->router = Container::pull(IRoutes::class);
     }
 
     public function start(): void
@@ -58,7 +58,9 @@ class RocServer
             if (is_array($handler)) {
                 [$class, $action] = $handler;
                 $handler = function (Context $context) use ($class, $action) {
-                    $context->writeJson(Container::run($class, $action));
+                    $context->writeJson(
+                        Container::getInstance()->invokeClassFunction($class, $action)
+                    );
                 };
             }
             $context = new Context();

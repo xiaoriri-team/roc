@@ -22,7 +22,7 @@ class Router
 {
     public static function __callStatic($name, $arguments)
     {
-        $router = Container::getInstance(IRoutes::class);
+        $router = Container::pull(IRoutes::class);
         return $router->{$name}(...$arguments);
     }
 }

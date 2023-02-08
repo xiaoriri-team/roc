@@ -25,6 +25,6 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * @var Application $app
  */
-$app = Container::getInstance(Application::class);
+$app = Container::pull(Application::class);
 $app->run();
 
