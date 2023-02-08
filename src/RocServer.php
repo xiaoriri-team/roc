@@ -40,6 +40,7 @@ class RocServer
 
     public function start(): void
     {
+        echo "Server is running at http://{$this->host}:{$this->port}" . PHP_EOL;
         $this->server->on('request', function (Request $request, Response $response) {
             //todo 处理回调参数问题
             //todo 路由中间件实现
