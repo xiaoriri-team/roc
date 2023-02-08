@@ -17,9 +17,9 @@ class Container
 {
 
     /**
-     * @var Container  容器对象实例
+     * @var ?Container  容器对象实例
      */
-    protected static  $instance;
+    protected static ?Container  $instance = null;
 
     /**
      * 容器中的对象实例
