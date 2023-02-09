@@ -6,8 +6,10 @@
 
 namespace roc;
 
+use roc\cache\Cache;
 use roc\Middleware\MiddlewareInterface;
 use roc\Router\IRoutes;
+use roc\watch\WatchFile;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -18,6 +20,7 @@ class RocServer
     private string $host;
     private int $port;
     private IRoutes $router;
+    private Cache $cache;
 
     /**
      * @var array<MiddlewareInterface>
@@ -36,6 +39,7 @@ class RocServer
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
         $this->router = Container::pull(IRoutes::class);
+        $this->cache = new Cache();
     }
 
     public function start(): void
@@ -72,7 +76,13 @@ class RocServer
             }
             $root($context);
         });
+        $this->initWatchFile();
+        $this->cache->set('is_start',1);
         $this->server->start();
     }
 
+    private function initWatchFile(): void {
+        $file = new WatchFile();
+        $file->start();
+    }
 }
