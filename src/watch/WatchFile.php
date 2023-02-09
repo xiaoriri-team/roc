@@ -25,9 +25,11 @@ class WatchFile {
             $file_cache = $this->cache->get('file_cache');
             $now_content = $this->getWatchMD5();
             if (md5(json_encode($now_content)) == md5(json_encode($file_cache))) {
+                echo '没有变化' . PHP_EOL;
                 return;
             }
             if ($is_start) {
+                echo '重新启动' . PHP_EOL;
                 // TODO 重新启动
                 // $this->app->server->start();
             }
@@ -38,10 +40,9 @@ class WatchFile {
      * Get all of the files from the given directory (recursive).222
      * @return SplFileInfo[]
      */
-    public function allFiles(string $directory, bool $hidden = false): array
-    {
+    public function allFiles(string $directory, bool $hidden = false): array {
         return iterator_to_array(
-            Finder::create()->files()->ignoreDotFiles(! $hidden)->in($directory)->sortByName(),
+            Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
             false
         );
     }
@@ -54,8 +55,8 @@ class WatchFile {
      * @return bool
      */
     private function endsWith(string $haystack, array|string $needles): bool {
-        foreach ((array) $needles as $needle) {
-            if (substr($haystack, -strlen($needle)) === (string) $needle) {
+        foreach ((array)$needles as $needle) {
+            if (substr($haystack, -strlen($needle)) === (string)$needle) {
                 return true;
             }
         }
@@ -78,7 +79,7 @@ class WatchFile {
                 $filesMD5[$pathName] = md5($contents);
             }
         }
-        $this->cache->set('file_cache',$filesMD5);
+        $this->cache->set('file_cache', $filesMD5);
         return $filesMD5;
     }
 }
