@@ -105,6 +105,7 @@ class WatchFile
 
     public static function restart()
     {
+        //0 输入 1 输出 2 错误
         $descriptorspec = [0 => STDIN, 1 => STDOUT, 2 => STDERR,];
         $cmd = 'php ' . BASE_PATH . DIRECTORY_SEPARATOR . 'index.php start';
         proc_open($cmd, $descriptorspec, $pipes, BASE_PATH);

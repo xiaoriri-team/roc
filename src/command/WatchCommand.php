@@ -21,10 +21,8 @@ class WatchCommand extends Command
 
     public function handle()
     {
-        \Swoole\Coroutine\go(function () {
-            $file = new WatchFile();
-            $file->start();
-            WatchFile::restart();
-        });
+        $file = new WatchFile();
+        $file->start();
+        WatchFile::restart();
     }
 }
