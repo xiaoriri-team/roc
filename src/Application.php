@@ -13,6 +13,10 @@ use roc\Router\TrieRoutes;
 
 class Application
 {
+
+    /**
+     * @var array 默认配置文件
+     */
     private array $configs = [
         'config' => [
             'server' => [
@@ -22,7 +26,14 @@ class Application
         ]
     ];
 
-    public $server;
+    /**
+     * 依赖注入绑定
+     * @var array|string[]
+     */
+    protected array $bind = [
+        IRoutes::class => TrieRoutes::class
+    ];
+
 
     /**
      * @return void
@@ -36,8 +47,13 @@ class Application
         $this->initCommand();
     }
 
-    private function initConfig()
+    /**
+     * 加载配置文件
+     * @return void
+     */
+    private function initConfig(): void
     {
+        //扫描config目录下的配置文件
         $path = BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
         if (is_dir($path)) {
             $files = scandir($path);
@@ -57,12 +73,18 @@ class Application
         }
     }
 
+    /**
+     * 初始化容器
+     * @return void
+     */
     private function initContainer()
     {
-        Container::getInstance()->bind(IRoutes::class, TrieRoutes::class);
+        $this->bind = array_merge($this->bind, $this->configs['provider'] ?? []);
+        Container::getInstance()->bind($this->bind);
     }
 
     /**
+     * 初始化命令行
      * @return void
      * @throws Exception
      */
@@ -74,15 +96,16 @@ class Application
     }
 
 
-    private function initServer()
+    /**
+     * 初始化Server
+     * @return void
+     */
+    private function initServer(): void
     {
         $config = $this->configs['config']['server'];
-        $this->server = new RocServer($config['host'], $config['port']);
+        $server = new RocServer($config['host'], $config['port']);
+        Container::getInstance()->bind(RocServer::class, $server);
     }
 
-    public function getServer(): RocServer
-    {
-        return $this->server;
-    }
 
 }

@@ -6,6 +6,7 @@
 
 namespace roc;
 
+use Closure;
 use roc\Middleware\MiddlewareInterface;
 use roc\Router\IRoutes;
 use Swoole\Http\Request;
@@ -42,27 +43,7 @@ class RocServer
     {
         echo "Server is running at http://{$this->host}:{$this->port}" . PHP_EOL;
         $this->server->on('request', function (Request $request, Response $response) {
-            //todo 处理回调参数问题
-            //todo 路由中间件实现
-            [$routeItem, $args, $handler] = $this->router->getData(
-                $request->getMethod(),
-                $request->server['request_uri']
-            );
-            //没有找到路由
-            if ($routeItem === null) {
-                $handler = function (Context $context) {
-                    $context->write(404, 'Not Found');
-                };
-            }
-            //处理控制器方法调用
-            if (is_array($handler)) {
-                [$class, $action] = $handler;
-                $handler = function (Context $context) use ($class, $action) {
-                    $context->writeJson(
-                        Container::getInstance()->invokeClassFunction($class, $action)
-                    );
-                };
-            }
+            $handler = $this->finMatch($request->getMethod(), $request->server['request_uri']);
             $context = new Context();
             $context->setRequest($request);
             $context->setResponse($response);
@@ -73,6 +54,49 @@ class RocServer
             $root($context);
         });
         $this->server->start();
+    }
+
+
+    /**
+     * 查找路由
+     * @param $method
+     * @param $path
+     * @return Closure
+     */
+    private function finMatch($method, $path): Closure
+    {
+        [$routeItem, $args, $handler] = $this->router->getData($method, $path);
+        //没有找到路由
+        if ($routeItem === null) {
+            $handler = function (Context $context) {
+                $context->write(404, 'Not Found');
+            };
+        }
+        //处理控制器方法调用
+        if (is_array($handler)) {
+            [$class, $action] = $handler;
+
+            $handler = function (Context $context) use ($class, $action, $args) {
+                if ($args) {
+                    array_unshift($args, $context);
+                } else {
+                    $args = [$context];
+                }
+                Container::getInstance()->invokeClassFunction($class, $action, $args);
+            };
+        }
+        //处理闭包函数调用
+        if ($handler instanceof Closure) {
+            $handler = function (Context $context) use ($handler, $args) {
+                if ($args) {
+                    array_unshift($args, $context);
+                } else {
+                    $args = [$context];
+                }
+                Container::getInstance()->invokeFunction($handler, $args);
+            };
+        }
+        return $handler;
     }
 
 }

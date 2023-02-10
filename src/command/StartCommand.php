@@ -8,6 +8,7 @@ namespace roc\command;
 
 use roc\Application;
 use roc\Container;
+use roc\RocServer;
 
 class StartCommand extends Command
 {
@@ -21,10 +22,9 @@ class StartCommand extends Command
     public function handle()
     {
         /**
-         * @var Application $app
+         * @var RocServer $server
          */
-        $app = Container::pull(Application::class);
-        $server = $app->getServer();
+        $server = Container::pull(RocServer::class);
         $server->start();
     }
 }
