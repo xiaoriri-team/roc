@@ -6,8 +6,9 @@
 
 namespace roc\command;
 
+
 use roc\watch\WatchFile;
-use Swoole\Process;
+
 
 class WatchCommand extends Command
 {
@@ -20,10 +21,10 @@ class WatchCommand extends Command
 
     public function handle()
     {
-        $process = new Process(function (){
+        \Swoole\Coroutine\go(function () {
             $file = new WatchFile();
             $file->start();
+            WatchFile::restart();
         });
-        $process->start();
     }
 }

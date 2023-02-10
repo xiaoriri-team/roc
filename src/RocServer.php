@@ -6,11 +6,9 @@
 
 namespace roc;
 
-use roc\cache\Cache;
 use Closure;
 use roc\Middleware\MiddlewareInterface;
 use roc\Router\IRoutes;
-use roc\watch\WatchFile;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -21,31 +19,31 @@ class RocServer
     private string $host;
     private int $port;
     private IRoutes $router;
-    private Cache $cache;
 
     /**
      * @var array<MiddlewareInterface>
      */
     private array $middlewares;
 
-    public $pid;
-
     /**
-     * @param string $host
-     * @param int $port
      * @param array $middlewares
      */
-    public function __construct(string $host, int $port, array $middlewares = [])
+    public function __construct(array $middlewares = [])
     {
-        $this->host = $host;
-        $this->port = $port;
+        /**
+         * @var Application $app
+         */
+        $app = Container::pull(Application::class);
+        $config = $app->getConfig()['config']['server'];
+        $this->host = $config['host'] ?? '0.0.0.0';
+        $this->port = $config['port'] ?? 9501;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
         $this->server->set(array(
             'pid_file' => BASE_PATH . '/server.pid',
+            'worker_num' => 1
         ));
         $this->router = Container::pull(IRoutes::class);
-        $this->cache = new Cache();
     }
 
     public function start(): void
@@ -62,22 +60,9 @@ class RocServer
             }
             $root($context);
         });
-        $this->cache->set('is_start', 1);
-//        $this->initWatchFile();
         $this->server->start();
     }
 
-    public function restart()
-    {
-        $this->server->shutdown();
-        $this->server->start();
-    }
-
-
-    public function getPid()
-    {
-        return file_get_contents(BASE_PATH . DIRECTORY_SEPARATOR . 'server.pid');
-    }
 
     /**
      * 查找路由

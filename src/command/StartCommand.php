@@ -23,7 +23,7 @@ class StartCommand extends Command
         /**
          * @var RocServer $server
          */
-        $server = Container::pull(RocServer::class);
+        $server = Container::pull(RocServer::class, ['host' => '0.0.0.0', 'port' => 9501]);
         $server->start();
     }
 }

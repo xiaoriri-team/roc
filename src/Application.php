@@ -8,6 +8,7 @@ namespace roc;
 
 use Exception;
 use roc\command\StartCommand;
+use roc\command\WatchCommand;
 use roc\Router\IRoutes;
 use roc\Router\TrieRoutes;
 
@@ -43,7 +44,6 @@ class Application
     {
         $this->initContainer(); //优先级最高
         $this->initConfig();
-        $this->initServer();
         $this->initCommand();
     }
 
@@ -92,19 +92,18 @@ class Application
     {
         $application = new \Symfony\Component\Console\Application();
         $application->add(new StartCommand());
+        $application->add(new WatchCommand());
         $application->run();
     }
 
 
     /**
-     * 初始化Server
-     * @return void
+     * 获取配置信息
+     * @return array|array[]
      */
-    private function initServer(): void
+    public function getConfig(): array
     {
-        $config = $this->configs['config']['server'];
-        $server = new RocServer($config['host'], $config['port']);
-        Container::getInstance()->bind(RocServer::class, $server);
+        return $this->configs;
     }
 
 
