@@ -6,13 +6,16 @@
 
 namespace roc\controller;
 
+use roc\cache\CacheInterface;
 use roc\Context;
 
-class UserController
-{
+class UserController {
 
-    public function index(Context $context)
-    {
-        $context->writeJson(['user' => 'index']);
+    public function index(Context $context, CacheInterface $cache) {
+        $cache->set(111, '9999');
+        $context->writeJson([
+            'user' => 'index',
+            'cache' => $cache->get(111)
+        ]);
     }
 }

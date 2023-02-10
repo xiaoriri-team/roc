@@ -24,6 +24,11 @@ class Application
                 'host' => '0.0.0.0',
                 'port' => 9501
             ]
+        ],
+        'watch' => [
+            'dir' => ['src', 'config'],
+            'ext' => ['.php'],
+            'scan_interval' => 2000,
         ]
     ];
 
@@ -45,6 +50,7 @@ class Application
         $this->initContainer(); //优先级最高
         $this->initConfig();
         $this->initCommand();
+
     }
 
     /**
@@ -60,7 +66,6 @@ class Application
             $files = array_filter($files, function ($file) {
                 return $file !== '.' && $file !== '..';
             });
-
             foreach ($files as $filename) {
                 if (file_exists($path . $filename)) {
                     $key = substr($filename, 0, strrpos($filename, "."));
@@ -79,7 +84,12 @@ class Application
      */
     private function initContainer()
     {
-        $this->bind = array_merge($this->bind, $this->configs['provider'] ?? []);
+        $path = BASE_PATH . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR;
+        $result = require_once $path . 'provider.php';
+        if ($result) {
+            $this->configs['provider'] = $result;
+        }
+        $this->bind = array_merge($this->configs['provider'] ?? [],$this->bind);
         Container::getInstance()->bind($this->bind);
     }
 
@@ -99,12 +109,15 @@ class Application
 
     /**
      * 获取配置信息
+     * @param string $module
+     * @param $default
      * @return array|array[]
      */
-    public function getConfig(): array
+    public function getConfig(string $module = '', $default = null): array
     {
+        if ($module) {
+            return $this->configs[$module] ?: $default;
+        }
         return $this->configs;
     }
-
-
 }

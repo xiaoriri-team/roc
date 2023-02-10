@@ -3,7 +3,7 @@
 namespace roc\cache;
 
 
-class Cache {
+class Cache implements CacheInterface {
 
     /**
      * 取得变量的存储文件名

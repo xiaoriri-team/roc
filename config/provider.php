@@ -6,5 +6,5 @@
 
 //绑定依赖注入
 return [
-
+    \roc\cache\CacheInterface::class => \roc\cache\Cache::class,
 ];

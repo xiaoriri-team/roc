@@ -41,7 +41,6 @@ class RocServer
         $this->server = new Server($this->host, $this->port);
         $this->server->set(array(
             'pid_file' => BASE_PATH . '/server.pid',
-            'worker_num' => 1
         ));
         $this->router = Container::pull(IRoutes::class);
     }

@@ -9,9 +9,4 @@ return [
         'host' => '0.0.0.0',
         'port' => 9501
     ],
-    'watchFile' => [
-        'dir' => ['src', 'config'],
-        'ext' => ['.php'],
-        'scan_interval' => 2000,
-    ]
 ];

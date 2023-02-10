@@ -6,10 +6,9 @@
 
 use roc\Context;
 use roc\Router\Router;
-use roc\Test;
 
 Router::get('/hello/:id', function (Context $context, $id) {
-    $context->writeJson(['code' => 123123, 'msg' => 'aaaa？', 'id' => $id]);
+    $context->writeJson(['code' => 123123, 'msg' => '7777', 'id' => $id]);
 });
 
 Router::get('/stop', function (Context $context) {
@@ -17,4 +16,4 @@ Router::get('/stop', function (Context $context) {
     exit();
 });
 
-Router::get('/test', [Test::class, 'test']);
+Router::get('/test', [\roc\controller\UserController::class, 'index']);

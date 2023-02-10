@@ -4,30 +4,26 @@ namespace roc\watch;
 
 use roc\Application;
 use roc\cache\Cache;
-use roc\Container;
-use roc\RocServer;
-use Swoole\Coroutine\Channel;
 use Swoole\Process;
 use Swoole\Server;
 use Swoole\Timer;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-class WatchFile
-{
+class WatchFile {
     public Server $server;
     public Application $app;
     public Cache $cache;
+    public array $config;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->app = new Application();
         $this->cache = new Cache();
+        $this->config = $this->app->getConfig('watch');
     }
 
-    public function start(): void
-    {
-        Timer::tick(2000, function () {
+    public function start(): void {
+        Timer::tick($this->config['scan_interval'], function () {
             $file_cache = $this->cache->get('file_cache');
             if (!$file_cache) {
                 echo '第一次启动' . PHP_EOL;
@@ -42,11 +38,11 @@ class WatchFile
             }
             echo '有变化' . PHP_EOL;
             $path = BASE_PATH . DIRECTORY_SEPARATOR . 'server.pid';
-            if(file_exists($path)){
-                $pid =  file_get_contents($path);
-                if (Process::kill((int) $pid, 0)) {
+            if (file_exists($path)) {
+                $pid = file_get_contents($path);
+                if (Process::kill((int)$pid, 0)) {
                     echo '重启服务' . PHP_EOL;
-                    Process::kill((int) $pid, SIGTERM);
+                    Process::kill((int)$pid, SIGTERM);
                     self::restart();
                 }
             }
@@ -57,8 +53,7 @@ class WatchFile
      * Get all of the files from the given directory (recursive).222
      * @return SplFileInfo[]
      */
-    public function allFiles(string $directory, bool $hidden = false): array
-    {
+    public function allFiles(string $directory, bool $hidden = false): array {
         return iterator_to_array(
             Finder::create()->files()->ignoreDotFiles(!$hidden)->in($directory)->sortByName(),
             false
@@ -72,8 +67,7 @@ class WatchFile
      * @param array|string $needles
      * @return bool
      */
-    private function endsWith(string $haystack, $needles): bool
-    {
+    private function endsWith(string $haystack, $needles): bool {
         foreach ((array)$needles as $needle) {
             if (substr($haystack, -strlen($needle)) === (string)$needle) {
                 return true;
@@ -82,11 +76,10 @@ class WatchFile
         return false;
     }
 
-    private function getWatchMD5(): array
-    {
+    private function getWatchMD5(): array {
         $filesObj = [];
-        $dir = ['src', 'config'];
-        $ext = ['.php'];
+        $dir = $this->config['dir'];
+        $ext = $this->config['ext'];
         foreach ($dir as $d) {
             $filesObj = array_merge($filesObj, $this->allFiles(BASE_PATH . '/' . $d));
         }
@@ -103,11 +96,11 @@ class WatchFile
         return $filesMD5;
     }
 
-    public static function restart()
-    {
+    public static function restart() {
         //0 输入 1 输出 2 错误
         $descriptorspec = [0 => STDIN, 1 => STDOUT, 2 => STDERR,];
         $cmd = 'php ' . BASE_PATH . DIRECTORY_SEPARATOR . 'index.php start';
+        $pipes = [];
         proc_open($cmd, $descriptorspec, $pipes, BASE_PATH);
     }
 }
