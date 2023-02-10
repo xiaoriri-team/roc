@@ -6,7 +6,6 @@
 
 namespace roc\command;
 
-use roc\Application;
 use roc\Container;
 use roc\RocServer;
 

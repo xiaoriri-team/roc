@@ -28,6 +28,8 @@ class RocServer
      */
     private array $middlewares;
 
+    public $pid;
+
     /**
      * @param string $host
      * @param int $port
@@ -39,6 +41,9 @@ class RocServer
         $this->port = $port;
         $this->middlewares = $middlewares;
         $this->server = new Server($this->host, $this->port);
+        $this->server->set(array(
+            'pid_file' => BASE_PATH . '/server.pid',
+        ));
         $this->router = Container::pull(IRoutes::class);
         $this->cache = new Cache();
     }
@@ -57,14 +62,21 @@ class RocServer
             }
             $root($context);
         });
-        $this->initWatchFile();
-        $this->cache->set('is_start',1);
+        $this->cache->set('is_start', 1);
+//        $this->initWatchFile();
         $this->server->start();
     }
 
-    private function initWatchFile(): void {
-        $file = new WatchFile();
-        $file->start();
+    public function restart()
+    {
+        $this->server->shutdown();
+        $this->server->start();
+    }
+
+
+    public function getPid()
+    {
+        return file_get_contents(BASE_PATH . DIRECTORY_SEPARATOR . 'server.pid');
     }
 
     /**

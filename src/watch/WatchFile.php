@@ -4,6 +4,9 @@ namespace roc\watch;
 
 use roc\Application;
 use roc\cache\Cache;
+use roc\Container;
+use roc\RocServer;
+use Swoole\Process;
 use Swoole\Server;
 use Swoole\Timer;
 use Symfony\Component\Finder\Finder;
@@ -30,8 +33,16 @@ class WatchFile {
             }
             if ($is_start) {
                 echo '重新启动' . PHP_EOL;
-                // TODO 重新启动
-                // $this->app->server->start();
+//                // TODO 重新启动
+                /**
+                 * @var RocServer $server
+                 */
+                $server = Container::pull(RocServer::class);
+                echo  $server->getPid().'2222';
+                if (Process::kill((int) $server->getPid(), 0)) {
+                    Process::kill((int)$server->getPid(), SIGTERM);
+                }
+                $server->restart();
             }
         });
     }
@@ -54,7 +65,7 @@ class WatchFile {
      * @param array|string $needles
      * @return bool
      */
-    private function endsWith(string $haystack, array|string $needles): bool {
+    private function endsWith(string $haystack,$needles): bool {
         foreach ((array)$needles as $needle) {
             if (substr($haystack, -strlen($needle)) === (string)$needle) {
                 return true;
