@@ -9,7 +9,7 @@ namespace roc\command;
 use roc\Container;
 use roc\RocServer;
 
-class StartCommand extends Command
+class StartServerCommand extends Command
 {
 
     public function __construct()

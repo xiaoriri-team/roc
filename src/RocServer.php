@@ -9,6 +9,7 @@ namespace roc;
 use Closure;
 use roc\Middleware\MiddlewareInterface;
 use roc\Router\IRoutes;
+use Swoole\Coroutine as SwooleCo;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server;
@@ -41,12 +42,15 @@ class RocServer
         $this->server = new Server($this->host, $this->port);
         $this->server->set(array(
             'pid_file' => BASE_PATH . '/server.pid',
+            'enable_preemptive_scheduler' => true
         ));
         $this->router = Container::pull(IRoutes::class);
     }
 
     public function start(): void
     {
+        //开启协程Hook
+        SwooleCo::set(['hook_flags' => SWOOLE_HOOK_ALL]);
         echo "Server is running at http://{$this->host}:{$this->port}" . PHP_EOL;
         $this->server->on('request', function (Request $request, Response $response) {
             $handler = $this->finMatch($request->getMethod(), $request->server['request_uri']);
