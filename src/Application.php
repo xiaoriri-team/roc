@@ -7,7 +7,7 @@
 namespace roc;
 
 use Exception;
-use roc\command\StartCommand;
+use roc\command\StartServerCommand;
 use roc\command\WatchCommand;
 use roc\Router\IRoutes;
 use roc\Router\TrieRoutes;
@@ -101,7 +101,7 @@ class Application
     private function initCommand()
     {
         $application = new \Symfony\Component\Console\Application();
-        $application->add(new StartCommand());
+        $application->add(new StartServerCommand());
         $application->add(new WatchCommand());
         $application->run();
     }
