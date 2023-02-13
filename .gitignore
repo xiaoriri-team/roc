@@ -8,3 +8,4 @@ out
 gen
 vendor/*
 cache_temp/
+server.pid
